@@ -7,11 +7,8 @@ import android.os.Bundle;
 
 import android.util.Log;
 import android.view.KeyEvent;
-import android.view.View;
-import android.view.Menu;
-import android.view.MenuItem;
+
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -22,20 +19,15 @@ import com.symbol.emdk.EMDKResults;
 import com.symbol.emdk.barcode.BarcodeManager;
 import com.symbol.emdk.barcode.ScanDataCollection;
 import com.symbol.emdk.barcode.Scanner.DataListener;
-import com.symbol.emdk.barcode.Scanner.StatusListener;
 import com.symbol.emdk.barcode.ScannerException;
 import com.symbol.emdk.barcode.ScannerResults;
-import com.symbol.emdk.barcode.StatusData;
 import com.symbol.emdk.barcode.Scanner;
 import com.symbol.emdk.barcode.ScanDataCollection.ScanData;
-import com.symbol.emdk.barcode.ScanDataCollection.LabelType;
 import java.util.ArrayList;
-import com.symbol.emdk.barcode.StatusData.ScannerStates;
 
 
 public class MainActivity extends AppCompatActivity implements EMDKListener, DataListener   {
 
-   boolean btpress = false;
     private EMDKManager emdkManager = null;
 
     // Declare a variable to store Barcode Manager object
@@ -45,7 +37,6 @@ public class MainActivity extends AppCompatActivity implements EMDKListener, Dat
     private Scanner scanner = null;
     int dataLength = 0;
     // Text view to display status of EMDK and Barcode Scanning Operations
-    private TextView statusTextView = null;
 
     // Edit Text that is used to display scanned barcode data
     private EditText dataView = null;
@@ -55,7 +46,6 @@ public class MainActivity extends AppCompatActivity implements EMDKListener, Dat
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         // Reference to UI elements
-        statusTextView = (TextView) findViewById(R.id.textViewStatus);
         dataView = (EditText) findViewById(R.id.editText1);
 
 
@@ -65,7 +55,7 @@ public class MainActivity extends AppCompatActivity implements EMDKListener, Dat
 // Check the return status of getEMDKManager and update the status Text
 // View accordingly
         if (results.statusCode != EMDKResults.STATUS_CODE.SUCCESS) {
-            statusTextView.setText("EMDKManager Request Failed");
+           Toast.makeText(this,"EMDKManager Request Failed",Toast.LENGTH_LONG).show();
         }
 
     }
@@ -91,7 +81,7 @@ public class MainActivity extends AppCompatActivity implements EMDKListener, Dat
 
 // Toast to indicate that the user can now start scanning
         Toast.makeText(MainActivity.this,
-                "Press Hard Scan Button to start scanning...",
+                "Press right yellow button to start scanning...",
                 Toast.LENGTH_SHORT).show();
     }
 
@@ -150,14 +140,7 @@ public class MainActivity extends AppCompatActivity implements EMDKListener, Dat
             // press the trigger on the device after issuing the read call.
             scanner.triggerType = Scanner.TriggerType.SOFT_ONCE;
             // Enable the scanner
-//            if(btpress){
-//            scanner.enable();
-//            // Starts an asynchronous Scan. The method will not turn ON the
-//            // scanner. It will, however, put the scanner in a state in which
-//            // the scanner can be turned ON either by pressing a hardware
-//            // trigger or can be turned ON automatically.
-//            scanner.read();
-//        }
+
         }
         else{
             Log.i("saga", "hiiii");
@@ -227,6 +210,12 @@ public class MainActivity extends AppCompatActivity implements EMDKListener, Dat
 
     }
     public boolean dispatchKeyEvent(KeyEvent event) {
+        try {
+            scanner.disable();
+        } catch (ScannerException e) {
+            e.printStackTrace();
+        }
+
         int action = event.getAction();
         int keyCode = event.getKeyCode();
         Log.i("skey", String.valueOf(keyCode));
@@ -246,8 +235,7 @@ public class MainActivity extends AppCompatActivity implements EMDKListener, Dat
             case 285:
                 if (action == KeyEvent.ACTION_DOWN) {
                     //TODO
-                    try {                    scanner.disable();
-
+                    try {
                         scanner.enable();
                         scanner.read();
                         scanner.triggerType = Scanner.TriggerType.SOFT_ONCE;
